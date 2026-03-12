@@ -1,5 +1,6 @@
 package com.example.tienda_generica_distribuidos.unbosque.usuario.Controller;
 
+import com.example.tienda_generica_distribuidos.unbosque.usuario.DTO.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UsuarioController {
 
     @Autowired
@@ -63,14 +64,18 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
-        try {
-            String usuario  = credenciales.get("usuario");
-            String password = credenciales.get("password");
-            UsuarioDTO dto = usuarioService.login(usuario, password);
-            return ResponseEntity.ok(dto);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    public String login(@RequestBody LoginRequest login) {
+        if (login.getId() == 0 || login.getContraseña().isEmpty()){
+            return "Error: los datos están vacíos";
         }
+        if (login.getId() == 1 && login.getContraseña().equals("admin123456")){
+            return "Login correcto - admin inicial";
+        }
+        boolean permitir = usuarioService.login(login.getId(), login.getContraseña());
+
+        if (permitir){
+            return "Login correcto";
+        }
+        return "Usuario o contraseña incorrectos";
     }
 }

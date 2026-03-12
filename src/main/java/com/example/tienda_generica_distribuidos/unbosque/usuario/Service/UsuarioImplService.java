@@ -19,8 +19,9 @@ public class UsuarioImplService implements UsuarioInterface {
         return new UsuarioDTO(
                 entidad.getCedulaUsuario(),
                 entidad.getNombreUsuario(),
+                entidad.getDireccionUsuario(),
                 entidad.getEmailUsuario(),
-                entidad.getUsuario(),
+                entidad.getTelefono(),
                 entidad.getPassword()
         );
     }
@@ -29,8 +30,9 @@ public class UsuarioImplService implements UsuarioInterface {
         return new UsuarioEntidad(
                 dto.getCedulaUsuario(),
                 dto.getNombreUsuario(),
+                dto.getDireccionUsuario(),
                 dto.getEmailUsuario(),
-                dto.getUsuario(),
+                dto.getTelefono(),
                 dto.getPassword()
         );
     }
@@ -39,8 +41,9 @@ public class UsuarioImplService implements UsuarioInterface {
     public UsuarioDTO guardarUsuario(UsuarioDTO usuarioDTO) {
         if (usuarioDTO.getCedulaUsuario() == null
                 || usuarioDTO.getNombreUsuario() == null || usuarioDTO.getNombreUsuario().isBlank()
+                || usuarioDTO.getDireccionUsuario() == null || usuarioDTO.getDireccionUsuario().isBlank()
                 || usuarioDTO.getEmailUsuario()  == null || usuarioDTO.getEmailUsuario().isBlank()
-                || usuarioDTO.getUsuario()       == null || usuarioDTO.getUsuario().isBlank()
+                || usuarioDTO.getTelefono()       == null || usuarioDTO.getTelefono().isBlank()
                 || usuarioDTO.getPassword()      == null || usuarioDTO.getPassword().isBlank()) {
             throw new IllegalArgumentException("Faltan datos del usuario");
         }
@@ -71,7 +74,7 @@ public class UsuarioImplService implements UsuarioInterface {
         }
         if (usuarioDTO.getNombreUsuario() == null || usuarioDTO.getNombreUsuario().isBlank()
                 || usuarioDTO.getEmailUsuario()  == null || usuarioDTO.getEmailUsuario().isBlank()
-                || usuarioDTO.getUsuario()       == null || usuarioDTO.getUsuario().isBlank()
+                || usuarioDTO.getTelefono()       == null || usuarioDTO.getTelefono().isBlank()
                 || usuarioDTO.getPassword()      == null || usuarioDTO.getPassword().isBlank()) {
             throw new IllegalArgumentException("Datos faltantes");
         }
@@ -88,11 +91,14 @@ public class UsuarioImplService implements UsuarioInterface {
     }
 
     @Override
-    public UsuarioDTO login(String usuario, String password) {
-        Optional<UsuarioEntidad> optional = usuarioRepository.findByUsuarioAndPassword(usuario, password);
-        if (optional.isEmpty()) {
-            throw new IllegalArgumentException("Usuario o contraseña errados, intente de nuevo");
+    public boolean login(int usuario, String password) {
+        UsuarioEntidad usuarioDB = usuarioRepository.findById((long) usuario).orElse(null);
+        if (usuarioDB == null){
+            return false;
         }
-        return mapToDTO(optional.get());
+        if (usuarioDB.getPassword().equals(password)){
+            return true;
+        }
+        return false;
     }
 }

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuario")
 public class UsuarioEntidad {
 
     @Id
@@ -22,11 +22,14 @@ public class UsuarioEntidad {
     @Column(name = "nombre_usuario", nullable = false, length = 255)
     private String nombreUsuario;
 
+    @Column(name = "direccion_usuario", nullable = false, length = 255)
+    private String direccionUsuario;
+
     @Column(name = "email_usuario", nullable = false, length = 255)
     private String emailUsuario;
 
-    @Column(name = "usuario", nullable = false, length = 255)
-    private String usuario;
+    @Column(name = "telefono_usuario", nullable = false, length = 255)
+    private String telefono;
 
     @Column(name = "password", nullable = false, length = 255)
     private String password;

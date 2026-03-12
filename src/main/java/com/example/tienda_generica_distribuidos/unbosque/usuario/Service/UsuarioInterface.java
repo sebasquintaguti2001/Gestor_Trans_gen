@@ -16,5 +16,5 @@ public interface UsuarioInterface {
 
     void eliminarUsuario(Long cedula);
 
-    UsuarioDTO login(String usuario, String password);
+    boolean login(int usuario, String password);
 }
