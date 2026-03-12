@@ -2,12 +2,12 @@ package com.example.tienda_generica_distribuidos.unbosque.proveedor.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.example.tienda_generica_distribuidos.unbosque.proveedor.DTO.ProveedorDTO;
 import com.example.tienda_generica_distribuidos.unbosque.proveedor.Entidad.ProveedorEntidad;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProveedorImplService implements ProveedorInterface {
@@ -15,6 +15,7 @@ public class ProveedorImplService implements ProveedorInterface {
     @Autowired
     private ProveedorRepository proveedorRepository;
 
+    // Modifica solo estos dos métodos dentro de tu ProveedorImplService
     private ProveedorDTO mapToDTO(ProveedorEntidad entidad) {
         return new ProveedorDTO(
                 entidad.getNitProveedor(),
@@ -22,6 +23,7 @@ public class ProveedorImplService implements ProveedorInterface {
                 entidad.getDireccionProveedor(),
                 entidad.getTelefonoProveedor(),
                 entidad.getCiudadProveedor()
+
         );
     }
 
@@ -36,54 +38,42 @@ public class ProveedorImplService implements ProveedorInterface {
     }
 
     @Override
+    @Transactional // <--- VITAL: Asegura que se haga el COMMIT
     public ProveedorDTO guardarProveedor(ProveedorDTO proveedorDTO) {
-        if (proveedorDTO.getNitProveedor() == null
-                || proveedorDTO.getNombreProveedor()    == null || proveedorDTO.getNombreProveedor().isBlank()
-                || proveedorDTO.getDireccionProveedor() == null || proveedorDTO.getDireccionProveedor().isBlank()
-                || proveedorDTO.getTelefonoProveedor()  == null || proveedorDTO.getTelefonoProveedor().isBlank()
-                || proveedorDTO.getCiudadProveedor()    == null || proveedorDTO.getCiudadProveedor().isBlank()) {
-            throw new IllegalArgumentException("Faltan datos del proveedor");
+        try {
+            ProveedorEntidad entidad = mapToEntidad(proveedorDTO);
+            // Usamos saveAndFlush para forzar la escritura inmediata
+            ProveedorEntidad guardado = proveedorRepository.saveAndFlush(entidad);
+            return mapToDTO(guardado);
+        } catch (Exception e) {
+            System.err.println("ERROR AL ESCRIBIR EN DISCO: " + e.getMessage());
+            throw new RuntimeException("Fallo real en BD: " + e.getMessage());
         }
-        ProveedorEntidad entidad = proveedorRepository.save(mapToEntidad(proveedorDTO));
-        return mapToDTO(entidad);
     }
 
     @Override
     public List<ProveedorDTO> listarProveedores() {
-        List<ProveedorEntidad> entidades = proveedorRepository.findAll();
-        List<ProveedorDTO> lista = new ArrayList<>();
-        for (ProveedorEntidad e : entidades) {
-            lista.add(mapToDTO(e));
-        }
-        return lista;
+        return proveedorRepository.findAll().stream().map(this::mapToDTO).toList();
     }
 
     @Override
     public ProveedorDTO obtenerProveedorPorNit(Long nit) {
-        Optional<ProveedorEntidad> optional = proveedorRepository.findById(nit);
-        return optional.map(this::mapToDTO).orElse(null);
+        return proveedorRepository.findById(nit).map(this::mapToDTO).orElse(null);
     }
 
     @Override
+    @Transactional
     public ProveedorDTO actualizarProveedor(ProveedorDTO proveedorDTO) {
         if (!proveedorRepository.existsById(proveedorDTO.getNitProveedor())) {
             throw new IllegalArgumentException("Proveedor Inexistente");
         }
-        if (proveedorDTO.getNombreProveedor()    == null || proveedorDTO.getNombreProveedor().isBlank()
-                || proveedorDTO.getDireccionProveedor() == null || proveedorDTO.getDireccionProveedor().isBlank()
-                || proveedorDTO.getTelefonoProveedor()  == null || proveedorDTO.getTelefonoProveedor().isBlank()
-                || proveedorDTO.getCiudadProveedor()    == null || proveedorDTO.getCiudadProveedor().isBlank()) {
-            throw new IllegalArgumentException("Datos faltantes");
-        }
-        ProveedorEntidad entidad = proveedorRepository.save(mapToEntidad(proveedorDTO));
-        return mapToDTO(entidad);
+        return mapToDTO(proveedorRepository.saveAndFlush(mapToEntidad(proveedorDTO)));
     }
 
     @Override
+    @Transactional
     public void eliminarProveedor(Long nit) {
-        if (!proveedorRepository.existsById(nit)) {
-            throw new IllegalArgumentException("NIT Errado");
-        }
         proveedorRepository.deleteById(nit);
+        proveedorRepository.flush();
     }
 }

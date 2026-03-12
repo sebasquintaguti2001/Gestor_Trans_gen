@@ -16,18 +16,19 @@ import lombok.NoArgsConstructor;
 public class ProveedorEntidad {
 
     @Id
-    @Column(name = "nitproveedor", nullable = false)
+    @Column(name = "nitproveedor")
     private Long nitProveedor;
 
-    @Column(name = "nombre_proveedor", nullable = false, length = 255)
+    @Column(name = "nombre_proveedor")
     private String nombreProveedor;
 
-    @Column(name = "direccion_proveedor", nullable = false, length = 255)
+    @Column(name = "direccion_proveedor")
     private String direccionProveedor;
 
-    @Column(name = "telefono_proveedor", nullable = false, length = 255)
+    @Column(name = "telefono_proveedor")
     private String telefonoProveedor;
 
-    @Column(name = "ciudad_proveedor", nullable = false, length = 255)
+    @Column(name = "ciudad_proveedor")
     private String ciudadProveedor;
+
 }
